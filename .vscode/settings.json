@@ -1,0 +1,12 @@
+{
+  "WillLuke.nextjs.hasPrompted": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "cSpell.words": ["Octo"],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsconfig": "./tsconfig.json",
+  "prettier.singleQuote": true,
+  "prettier.semi": false,
+  "editor.formatOnSave": true
+}
