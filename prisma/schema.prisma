@@ -1,0 +1,112 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id           String         @id @unique @default(uuid())
+    email        String         @unique
+    auth0_id     String         @unique
+    Product      Product[]
+    Dish         Dish[]
+    Meal         UserMeal[]
+    ProductGroup ProductGroup[]
+}
+
+enum UnitOfMeasure {
+    GRAM
+    MILLILITER
+    PIECE
+}
+
+model ProductGroup {
+    id            String         @id @unique @default(uuid())
+    author        User           @relation(fields: [userId], references: [id])
+    userId        String
+    title         String
+    description   String?
+    parentGroup   ProductGroup?  @relation("Subgroups", fields: [parentGroupId], references: [id])
+    parentGroupId String?
+    subgroups     ProductGroup[] @relation("Subgroups")
+    products      Product[]      @relation("GroupProducts")
+}
+
+model Product {
+    id              String            @id @unique @default(uuid())
+    author          User              @relation(fields: [userId], references: [id])
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
+    userId          String
+    title           String
+    description     String
+    producer        String
+    packSize        Int
+    unit            UnitOfMeasure
+    barcode         String
+    calories        Int
+    proteins        Int
+    fats            Int
+    carbs           Int
+    Ingredient      Ingredient[]
+    UserMealProduct UserMealProduct[]
+    ProductGroup    ProductGroup?     @relation("GroupProducts", fields: [productGroupId], references: [id])
+    productGroupId  String?
+}
+
+model Ingredient {
+    id        String        @id @unique @default(uuid())
+    dish      Dish          @relation(fields: [dishId], references: [id])
+    dishId    String
+    product   Product       @relation(fields: [productId], references: [id])
+    productId String
+    size      Int
+    unit      UnitOfMeasure
+}
+
+model Dish {
+    id           String         @id @unique @default(uuid())
+    author       User           @relation(fields: [userId], references: [id])
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
+    userId       String
+    title        String
+    description  String
+    ingredient   Ingredient[]
+    unit         UnitOfMeasure
+    UserMealDish UserMealDish[]
+}
+
+model UserMealProduct {
+    id         String   @id @unique @default(uuid())
+    userMeal   UserMeal @relation(fields: [userMealId], references: [id])
+    userMealId String
+    product    Product  @relation(fields: [productId], references: [id])
+    productId  String
+    size       Int
+}
+
+model UserMealDish {
+    id         String   @id @unique @default(uuid())
+    userMeal   UserMeal @relation(fields: [userMealId], references: [id])
+    userMealId String
+    dish       Dish     @relation(fields: [dishId], references: [id])
+    dishId     String
+    size       Int
+}
+
+model UserMeal {
+    id          String            @id @unique @default(uuid())
+    author      User              @relation(fields: [userId], references: [id])
+    createdAt   DateTime          @default(now())
+    updatedAt   DateTime          @updatedAt
+    userId      String
+    title       String
+    description String
+    date        DateTime
+    products    UserMealProduct[]
+    dishes      UserMealDish[]
+}
